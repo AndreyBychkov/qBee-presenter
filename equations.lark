@@ -1,0 +1,85 @@
+start : equation+
+
+?value : SIGNED_NUMBER -> number
+       | operator
+       | varname
+       | func
+       | braced
+       | function
+
+
+?operator : sum
+          | diff
+          | mul
+          | div
+          | pow
+
+?func : sin
+      | cos
+      | tan
+      | cot
+      | ln
+      | log
+      | exp
+      | asin
+      | acos
+      | atan
+      | acot
+      | sinh
+      | cosh
+      | tanh
+      | coth
+      | asinh
+      | acosh
+      | atanh
+      | acoth
+      | exp
+      | sqrt
+
+
+varname : CNAME
+string : "/[a-z_]w*/"
+
+sum : value "+" value
+mul : value "*" value
+div : value "/" value
+diff : value "-" value
+pow : value "^" value
+
+braced : "(" + value + ")"
+function : varname + "(" + value + ")"
+ln : "ln" + "(" + value + ")"
+log : "log" + "(" + value + "," + value + ")"
+
+sin : "sin" + "(" + value + ")"
+cos : "cos" + "(" + value + ")"
+tan : "tan" + "(" + value + ")"
+cot : "cot" + "(" + value + ")"
+
+asin : "asin" + "(" + value + ")"
+acos : "acos" + "(" + value + ")"
+atan : "atan" + "(" + value + ")"
+acot : "acot" + "(" + value + ")"
+
+sinh : "sinh" + "(" + value + ")"
+cosh : "cosh" + "(" + value + ")"
+tanh : "tanh" + "(" + value + ")"
+coth : "coth" + "(" + value + ")"
+
+asinh : "asinh" + "(" + value + ")"
+acosh : "acosh" + "(" + value + ")"
+atanh : "atanh" + "(" + value + ")"
+acoth : "acoth" + "(" + value + ")"
+
+
+exp : "exp" + "(" + value + ")"
+sqrt : "sqrt" + "(" + value + ")"
+
+
+equation : varname + "'" + "=" + value
+
+
+%import common.SIGNED_NUMBER
+%import common.CNAME
+%import common.WS
+%ignore WS
