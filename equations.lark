@@ -5,6 +5,7 @@ start : equation+
        | varname
        | func
        | braced
+       | cbraced
        | function
 
 
@@ -37,7 +38,7 @@ start : equation+
       | sqrt
 
 
-varname : CNAME
+varname : CNAME + [cbraced]
 string : "/[a-z_]w*/"
 
 sum : value "+" value
@@ -47,6 +48,7 @@ diff : value "-" value
 pow : value "^" value
 
 braced : "(" + value + ")"
+cbraced : "{" + value + "}"
 function : varname + "(" + value + ")"
 ln : "ln" + "(" + value + ")"
 log : "log" + "(" + value + "," + value + ")"
@@ -81,5 +83,7 @@ equation : varname + "'" + "=" + value
 
 %import common.SIGNED_NUMBER
 %import common.CNAME
+%import common.LETTER
+%import common.DIGIT
 %import common.WS
 %ignore WS

@@ -94,14 +94,15 @@ class DiffEqTransformer(Transformer):
         return sp.Number(n[0])
 
     def varname(self, name):
-        (name,) = name
+        name, other = name
         match name:
             case "e":
                 return sp.E
             case "pi":
                 return sp.pi
             case _:
-                return sp.Symbol(name)
+                tail = str(other) if other else ""
+                return sp.Symbol(str(name) + tail)
 
     def sum(self, terms):
         return sp.Add(terms[0], terms[1])
@@ -117,6 +118,9 @@ class DiffEqTransformer(Transformer):
 
     def pow(self, terms):
         return sp.Pow(terms[0], terms[1])
+
+    def cbraced(self, expr):
+        return '{' + str(expr[0]) + '}'
 
     def braced(self, expr):
         return expr[0]
