@@ -3,7 +3,10 @@ import pandas as pd
 import sympy as sp
 from lark import Lark, Transformer
 from pprint import pprint
+from markdown_katex.extension import tex2html
+from bs4 import BeautifulSoup
 from qbee import *
+from examples_selector import Example
 
 
 def get_eq_grammar():
@@ -21,14 +24,44 @@ def eval_quadratization(system_str: str) -> str:
     return str(res)
 
 
+def change_input_with_example(example_name: str) -> str:
+    return Example(example_name).to_system()
+
+
+def prepare_for_render(out: str) -> str:
+    out_subs = out.replace("**", '^').replace('*', '')
+    out_split = "".join([line + r"\\" for line in out_subs.splitlines()])
+    return r"\begin{array}{lcl} \\ \text{Quadratized system} \\ \\" + out_split + r"\end{array}"
+
+
+def render_output(out: str):
+    options = {'no_inline_svg': True, 'insert_fonts_css': False}
+    html = tex2html(prepare_for_render(out), options)
+    soup = BeautifulSoup(html, 'html.parser')
+    for tag in soup.find_all("span", class_="katex-html"):
+        tag.decompose()
+    return soup.prettify()
+
+
 def launch_gradio():
     with gr.Blocks() as demo:
         gr.Markdown("Start typing below and then click **Quadratize** to see the output.")
+        examples = gr.Dropdown(list(map(str, Example)),
+                               value=str(Example.CIRCULAR),
+                               label="System")
         with gr.Column():
-            inp = gr.Textbox(placeholder="Enter a system of equations")
-            out = gr.Textbox()
+            inp = gr.Textbox(placeholder="Enter a system of equations",
+                             value=Example.CIRCULAR.to_system(),
+                             label="Input system")
+
+            with gr.Row():
+                out = gr.Textbox(label="Quadratized system")
+                out_html = gr.HTML()
         btn = gr.Button("Quadratize")
+
         btn.click(fn=eval_quadratization, inputs=inp, outputs=out)
+        examples.change(change_input_with_example, inputs=examples, outputs=inp)
+        out.change(render_output, inputs=out, outputs=out_html)
 
     demo.launch(share=True)
 
