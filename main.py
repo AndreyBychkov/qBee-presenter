@@ -21,7 +21,8 @@ def eval_quadratization(system_str: str) -> str:
     tree = diff_eq_parser.parse(system_str)
     system = DiffEqTransformer().transform(tree)
     res = polynomialize_and_quadratize(system)
-    return str(res)
+    # CONTRACT: single line break is used in prepare_for_render
+    return res.introduced_variables_str().strip() + "\n\n" + str(res)
 
 
 def change_input_with_example(example_name: str) -> str:
@@ -30,8 +31,23 @@ def change_input_with_example(example_name: str) -> str:
 
 def prepare_for_render(out: str) -> str:
     out_subs = out.replace("**", '^').replace('*', '')
-    out_split = "".join([line + r"\\" for line in out_subs.splitlines()])
-    return r"\begin{array}{lcl} \\ \text{Quadratized system} \\ \\" + out_split + r"\end{array}"
+    intr_variables, system = out_subs.split("\n\n")
+    intr_variables_split = "".join([line + r"\\" for line in intr_variables.splitlines()])
+    system_split = "".join([line + r"\\" for line in system.splitlines()])
+    return rf"""
+           \begin{{array}}{{lcl}} \\
+               \text{{Introduced variables}} \\ 
+               \\
+               {intr_variables_split}\
+           \end{{array}}\
+           \quad \quad
+           \begin{{array}}{{lcl}} \\
+               \\
+               \text{{Quadratized system}} \\
+               \\
+               {system_split}
+           \end{{array}}
+           """
 
 
 def render_output(out: str):
