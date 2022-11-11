@@ -31,26 +31,19 @@ def change_input_with_example(example_name: str) -> str:
 
 def prepare_for_render(out: str) -> str:
     out_subs = out.replace("**", '^').replace('*', '')
-    intr_variables, system = out_subs.split("\n\n")
-    intr_variables_split = "".join([line + r"\\" for line in intr_variables.splitlines()])
-    system_split = "".join([line + r"\\" for line in system.splitlines()])
+    intr_vars, system = out_subs.split("\n\n")
+    len_diff = len(system.splitlines()) - len(intr_vars.splitlines())
 
-    diff_len = len(system.splitlines()) - len(intr_variables.splitlines())
-    len_fix = r"\\" * diff_len
+    intr_vars_vert_indent = [" "] * len_diff + intr_vars.splitlines()
+    zip_equations = [fr"{left} & {right} \\" for left, right in
+                     zip(intr_vars_vert_indent, system.splitlines())]
+
     return rf"""
-           \begin{{array}}{{l | l}}
-           \begin{{array}}{{lcl}} 
-               \text{{Introduced variables}} \\ 
-               \\
-               {len_fix}
-               {intr_variables_split}
-           \end{{array}}
-           & 
-           \begin{{array}}{{lcl}} 
-               \text{{Quadratized system}} \\
-               \\
-               {system_split}
-           \end{{array}}
+           \quad
+           \begin{{array}}{{l | l}}  \\
+           \text{{Introduced variables}} & \text{{Quadratized system}} \\
+           & \\
+           {''.join(zip_equations)}
            \end{{array}}
            """
 
