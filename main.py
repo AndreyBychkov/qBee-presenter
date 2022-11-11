@@ -34,18 +34,23 @@ def prepare_for_render(out: str) -> str:
     intr_variables, system = out_subs.split("\n\n")
     intr_variables_split = "".join([line + r"\\" for line in intr_variables.splitlines()])
     system_split = "".join([line + r"\\" for line in system.splitlines()])
+
+    diff_len = len(system.splitlines()) - len(intr_variables.splitlines())
+    len_fix = r"\\" * diff_len
     return rf"""
-           \begin{{array}}{{lcl}} \\
+           \begin{{array}}{{l | l}}
+           \begin{{array}}{{lcl}} 
                \text{{Introduced variables}} \\ 
                \\
-               {intr_variables_split}\
-           \end{{array}}\
-           \quad \quad
-           \begin{{array}}{{lcl}} \\
-               \\
+               {len_fix}
+               {intr_variables_split}
+           \end{{array}}
+           & 
+           \begin{{array}}{{lcl}} 
                \text{{Quadratized system}} \\
                \\
                {system_split}
+           \end{{array}}
            \end{{array}}
            """
 
